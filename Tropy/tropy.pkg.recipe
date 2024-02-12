@@ -41,11 +41,11 @@
 				<key>Arguments</key>
 				<dict>
 					<key>destination_path</key>
-					<string>%RECIPE_CACHE_DIR%/pkgroot/Applications/%NAME%.app</string>
+					<string>%RECIPE_CACHE_DIR%/pkgroot/Applications/Tropy.app</string>
 					<key>overwrite</key>
 					<true/>
 					<key>source_path</key>
-					<string>%pathname%/%NAME%.app</string>
+					<string>%pathname%/Tropy.app</string>
 				</dict>
 			</dict>
 			<dict>
