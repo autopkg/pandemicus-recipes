@@ -1,0 +1,67 @@
+Description: |
+  Downloads the latest x86_64 (Intel) and arm64 (Apple) dmg's for Pycharm Community Edition (CE).
+  Based on code from 'com.github.bnpl.autopkg.download.jetbrains'.
+Identifier: com.github.pandemicus-recipes.universal.download.pycharm.ce
+MinimumVersion: '2.3'
+
+Input:
+  NAME: JetBrains Pycharm Community Edition Universal Download
+
+Process:
+  - Processor: URLTextSearcher
+    Arguments:
+      url: https://data.services.jetbrains.com/products/releases?code=PCC&amp;latest=true&amp;type=release
+      re_pattern: '"mac":{"link":"(https://download.jetbrains.com/.*?.dmg)"'
+      request_headers:
+        user-agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0'
+
+  - Processor: URLDownloader
+    Arguments:
+      url: '%match%'
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: '%pathname%/*.app'
+
+  - Processor: PlistReader
+    Arguments:
+      info_path: '%pathname%/%dmg_found_filename%'
+      plist_keys:
+        CFBundleShortVersionString: version
+        LSMinimumSystemVersion: min_os_vers
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: '%pathname%/%dmg_found_filename%'
+      requirement: 'identifier "com.jetbrains.pycharm.ce" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"'
+      strict_verification: 'True'
+
+  - Processor: URLTextSearcher
+    Arguments:
+      url: https://data.services.jetbrains.com/products/releases?code=PCC&amp;latest=true&amp;type=release
+      re_pattern: '"macM1":{"link":"(https://download.jetbrains.com/.*?.dmg)"'
+      request_headers:
+        user-agent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.11; rv:46.0) Gecko/20100101 Firefox/46.0'
+
+  - Processor: URLDownloader
+    Arguments:
+      url: '%match%'
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: '%pathname%/*.app'
+
+  - Processor: PlistReader
+    Arguments:
+      info_path: '%pathname%/%dmg_found_filename%'
+      plist_keys:
+        CFBundleShortVersionString: version
+        LSMinimumSystemVersion: min_os_vers
+
+  - Processor: CodeSignatureVerifier
+    Arguments:
+      input_path: '%pathname%/%dmg_found_filename%'
+      requirement: 'identifier "com.jetbrains.pycharm.ce" and anchor apple generic and certificate 1[field.1.2.840.113635.100.6.2.6] /* exists */ and certificate leaf[field.1.2.840.113635.100.6.1.13] /* exists */ and certificate leaf[subject.OU] = "2ZEFAR8TH3"'
+      strict_verification: 'True'
+
+  - Processor: EndOfCheckPhase

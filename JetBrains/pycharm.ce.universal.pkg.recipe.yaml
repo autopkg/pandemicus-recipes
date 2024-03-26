@@ -1,0 +1,141 @@
+Description: |
+  Downloads the latest x86_64 (Intel) and arm64 (Apple) dmg's for Pycharm Community Edition (CE) and builds a universal pkg that contains both versions. The pkg identifies the architecture of the target computer and installs the correct version.
+  Based on code from 'com.github.bnpl.autopkg.download.jetbrains' and 'com.github.rtrouton.pkg.SapMachineUniversalJDK21'.
+Identifier: com.github.pandemicus-recipes.universal.pkg.pycharm.ce
+ParentRecipe: com.github.pandemicus-recipes.universal.download.pycharm.ce
+MinimumVersion: '2.3'
+
+Input:
+  NAME: PyCharm Community Edition
+
+Process:
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgroot: '%RECIPE_CACHE_DIR%/x86_64/pkgroot'
+      pkgdirs:
+        Applications: '0755'
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: '%RECIPE_CACHE_DIR%/downloads/pycharm-community-%version%.dmg'
+
+  - Processor: AppDmgVersioner
+    Arguments:
+      dmg_path: '%found_filename%'
+
+  - Processor: Copier
+    Arguments:
+      source_path: '%found_filename%/PyCharm CE.app'
+      destination_path: '%pkgroot%/Applications/PyCharm CE.app'
+      overwrite: True
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        chown:
+          - path: /Applications
+            user: root
+            group: wheel
+        id: 'pycharm.ce.x86.64.pkg'
+        pkgname: '%NAME% %version% x86_64'
+        version: '%version%'
+
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgroot: '%RECIPE_CACHE_DIR%/arm64/pkgroot'
+      pkgdirs:
+        Applications: '0755'
+
+  - Processor: FileFinder
+    Arguments:
+      pattern: '%RECIPE_CACHE_DIR%/downloads/pycharm-community-%version%-aarch64.dmg'
+
+  - Processor: AppDmgVersioner
+    Arguments:
+      dmg_path: '%found_filename%'
+
+  - Processor: Copier
+    Arguments:
+      source_path: '%found_filename%/PyCharm CE.app'
+      destination_path: '%pkgroot%/Applications/PyCharm CE.app'
+      overwrite: True
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        chown:
+          - path: /Applications
+            user: root
+            group: wheel
+        id: 'pycharm.ce.arm64.pkg'
+        pkgname: '%NAME% %version% arm64'
+        version: '%version%'
+
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgroot: '%RECIPE_CACHE_DIR%/Universal/Scripts'
+      pkgdirs: {}
+
+  - Processor: PkgRootCreator
+    Arguments:
+      pkgroot: '%RECIPE_CACHE_DIR%/Universal/pkgroot'
+      pkgdirs: {}
+
+  - Processor: FileMover
+    Arguments:
+      source: '%RECIPE_CACHE_DIR%/%NAME% %version% x86_64.pkg'
+      target: '%RECIPE_CACHE_DIR%/Universal/Scripts/%NAME% %version% x86_64.pkg'
+      overwrite: False
+
+  - Processor: FileMover
+    Arguments:
+      source: '%RECIPE_CACHE_DIR%/%NAME% %version% arm64.pkg'
+      target: '%RECIPE_CACHE_DIR%/Universal/Scripts/%NAME% %version% arm64.pkg'
+      overwrite: False
+
+  - Processor: FileCreator
+    Arguments:
+      file_path: '%RECIPE_CACHE_DIR%/Universal/Scripts/preinstall'
+      file_mode: '0755'
+      file_content: |
+        #!/bin/zsh
+        # Determine working directory
+
+        installDir=$(dirname $0)
+
+        # Identify installer package names
+
+        Intel_package="%NAME% %version% x86_64.pkg"
+        Apple_Silicon_package="%NAME% %version% arm64.pkg"
+
+        # Determine if this Mac has an Intel or Apple Silicon processor
+
+        processor=$(/usr/sbin/sysctl -n machdep.cpu.brand_string | grep -o "Intel")
+
+        if [[ -n "$processor" ]]; then
+
+        /usr/sbin/installer -pkg "$Intel_package" -target "$3"
+
+        else
+
+        /usr/sbin/installer -pkg "$Apple_Silicon_package" -target "$3"
+
+        fi
+
+        exit 0
+
+  - Processor: PkgCreator
+    Arguments:
+      pkg_request:
+        pkgname: '%NAME% %version% Universal'
+        version: '%version%'
+        id: 'pycharm.ce.universal.pkg'
+        scripts: '%RECIPE_CACHE_DIR%/Universal/Scripts'
+        options: purge_ds_store
+
+  - Processor: PathDeleter
+    Arguments:
+      path_list:
+      - '%RECIPE_CACHE_DIR%/x86_64'
+      - '%RECIPE_CACHE_DIR%/arm64'
+      - '%RECIPE_CACHE_DIR%/Universal'
