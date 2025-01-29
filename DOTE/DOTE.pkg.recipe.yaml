@@ -1,6 +1,6 @@
 Description: |
-  Downloads the latest version of DOTE and creates a .pkg. Modify the ARCHITECTURE key to determine if the Intel (x64) or Apple Silicon (arm64) version is downloaded. 
-  For example "--key ARCHITECTURE=arm64". Defaults to Intel if not overridden. 
+  Downloads the latest version of DOTE and creates a .pkg. Modify the ARCHITECTURE key to determine if the Intel (x64) or Apple Silicon (arm64) version is downloaded.
+  For example "--key ARCHITECTURE=arm64". Defaults to Intel if not overridden.
 Identifier: com.github.pandemicus-recipes.pkg.DOTE
 ParentRecipe: com.github.pandemicus-recipes.download.DOTE
 MinimumVersion: '2.3'
