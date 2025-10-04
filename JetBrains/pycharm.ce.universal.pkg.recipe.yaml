@@ -131,7 +131,6 @@ Process:
         version: '%version%'
         id: 'pycharm.ce.universal.pkg'
         scripts: '%RECIPE_CACHE_DIR%/Universal/Scripts'
-        options: purge_ds_store
 
   - Processor: PathDeleter
     Arguments:
