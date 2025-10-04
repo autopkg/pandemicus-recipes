@@ -59,8 +59,6 @@
 						<string>%NAME%-%version%</string>
 						<key>id</key>
 						<string>com.tropy.tropy.pkg</string>
-						<key>options</key>
-						<string>purge_ds_store</string>
 						<key>chown</key>
 						<array>
 							<dict>
